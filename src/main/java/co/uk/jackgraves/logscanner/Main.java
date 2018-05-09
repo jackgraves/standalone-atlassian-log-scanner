@@ -34,6 +34,8 @@ public class Main {
             "https://confluence.atlassian.com/support/files/179443532/792303609/2314/1525744113860/stash_regex_v2.xml",
             "https://confluence.atlassian.com/support/files/179443532/792630874/2361/1525737651612/crowd_regex_v2.xml"
     };
+    
+    private static final String COMPLETE = "      Complete\r\n";
 
     public static void main(String[] args) {
         // Introduction
@@ -42,25 +44,25 @@ public class Main {
         print("[1/5] Downloading Definitions... \r\n");
         if(!new File(args[0] + ".xml").isFile()) {
             downloadDefinition(args[0]);
-            print("      Complete\r\n");
+            print(COMPLETE);
         } else {
             print("      Skipping (Already Downloaded)\r\n");
         }
         // Process XML
         print("[2/5] Parsing XML... \r\n");
         List<RegExItem> regexItems = Objects.requireNonNull(unmarshallXml(args[0])).regexItems;
-        print("      Complete\r\n");
+        print(COMPLETE);
         // Build RegEx List
         print("[3/5] Generating Regular Expressions... \r\n");
         HashMap<String, Pattern> regularExpressions = new HashMap<>();
         for (RegExItem regexItem : regexItems) {
             regularExpressions.put(regexItem.URL, Pattern.compile(regexItem.regex));
         }
-        print("      Complete\r\n");
+        print(COMPLETE);
         // Read Log File
         print("[4/5] Reading Log File... \r\n");
         ArrayList<String> logFile = readLogFile(args[1]);
-        print("      Complete\r\n");
+        print(COMPLETE);
         // Parse Logs
         print("[5/5] Parsing Log Lines... \r\n");
         ArrayList<String> errors = parseLog(logFile, regularExpressions);
