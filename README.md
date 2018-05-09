@@ -18,3 +18,8 @@ Run the following command to build the project into a JAR file:
 ## Usage
 Execute the following on your command line (CMD or Bash):
 `java -jar logscanner.jar "jira-core" "atlassian-jira.log"`
+
+## Next Steps
+- [ ] Use the RE4J Library to perform RegEx Matching faster
+- [ ] Use a Worker Pool to perform RegEx Matching in parrallel
+- [ ] Write Jira plugin to automatically run scans on incoming support tickets (*.log) files
