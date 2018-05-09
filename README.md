@@ -1,6 +1,6 @@
 # Standalone Atlassian Log Scanner
 This is a standalone version of the Log Scanner (Hercules) that is built into Jira, Confluence, Bitbucket, Bamboo, Crowd and Fisheye/Crucible. 
-The aim is to increase the speed of scanning dramatically when executed through the interface.
+The aim is to increase the speed of scanning dramatically compared to executing through the interface and allow automated scanning of log files in a support system.
 
 ## How it Works
 The following steps are followed:
