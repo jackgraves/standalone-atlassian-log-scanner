@@ -1,6 +1,15 @@
-# Standalone Atlassian Log Scanner
+Sick of the time it takes to scan your Atlassian log files using the Log Analyser?
+ Enter SALSA!
+# Standalone Atlassian Log Scanner/Analyser
 This is a standalone version of the Log Scanner (Hercules) that is built into Jira, Confluence, Bitbucket, Bamboo, Crowd and Fisheye/Crucible. 
 The aim is to increase the speed of scanning dramatically compared to executing through the interface and allow automated scanning of log files in a support system.
+
+## Performance
+A 3MB Log File took the following duration:
+* Support Tools Log Analyser: 6 minutes 14 seconds
+* Standalong Log Scanner: 1 minute 48 seconds
+
+*That's an over 70% improvement!*
 
 ## How it Works
 The following steps are followed:
@@ -20,6 +29,13 @@ Execute the following on your command line (CMD or Bash):
 `java -jar logscanner.jar "jira-core" "atlassian-jira.log"`
 
 ## Next Steps
-- [ ] Use the RE4J Library to perform RegEx Matching faster
 - [ ] Use a Worker Pool to perform RegEx Matching in parrallel
-- [ ] Write Jira plugin to automatically run scans on incoming support tickets (*.log) files
+- [ ] Write Jira plugin to automatically scan incoming support log files
+
+## Example
+The built-in log analyser results:
+
+![Support Tools Output](example/example_output_supporttools.png)
+The same errors, shown in the SALSA tool:
+
+![SALSA Output](example/example_output_standalone.png)

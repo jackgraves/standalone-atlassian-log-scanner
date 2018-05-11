@@ -130,10 +130,11 @@ public class Main {
         int last = 0;
         int size = logFile.size();
         Matcher matcher;
+        // TODO: Increase speed. Look at using parrallel worker threads.
         for (String s : logFile) {
             for(String p : regularExpressions.keySet()) {
                 matcher = regularExpressions.get(p).matcher(s);
-                if(matcher.find()) {
+                if(matcher.find()) gi{
                     if(!errors.contains(p))
                     errors.add(p);
                 }
