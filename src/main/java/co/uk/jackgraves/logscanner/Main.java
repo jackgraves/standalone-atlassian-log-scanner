@@ -134,7 +134,7 @@ public class Main {
         for (String s : logFile) {
             for(String p : regularExpressions.keySet()) {
                 matcher = regularExpressions.get(p).matcher(s);
-                if(matcher.find()) gi{
+                if(matcher.find()) {
                     if(!errors.contains(p))
                     errors.add(p);
                 }
