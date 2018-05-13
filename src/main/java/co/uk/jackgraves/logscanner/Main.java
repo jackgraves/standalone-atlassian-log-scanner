@@ -11,6 +11,7 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,8 +20,9 @@ import java.util.regex.Pattern;
  *
  * Arguments:   Product (jira-core, jira-soft, jira-desk, confluence, crowd, bitbucket)
  * Log File:    Location of Log File (e.g. atlassian-jira.log)
+ * Use Streams: Use Java 8 Stream API. Faster, but uses more resources. "stream" or leave empty
  *
- * e.g. java -jar logscanner.jar "jira-core" "atlassian-jira.log"
+ * e.g. java -jar logscanner.jar "jira-core" "atlassian-jira.log" "stream"
  *
  */
 @SuppressWarnings("ALL")
@@ -65,7 +67,12 @@ public class Main {
         print(COMPLETE);
         // Parse Logs
         print("[5/5] Parsing Log Lines... \r\n");
-        ArrayList<String> errors = parseLog(logFile, regularExpressions);
+        ArrayList<String> errors;
+        if(args[2].equals("stream")) {
+            errors = parseLogStream(logFile, regularExpressions);
+        } else {
+            errors = parseLog(logFile, regularExpressions);
+        }
         print("\r      Complete\r\n");
         // Print Errors
         print("\r\nDetected Problems:\r\n");
@@ -142,6 +149,29 @@ public class Main {
             count++;
             last = printPercentage(count, last, size);
         }
+        return errors;
+    }
+
+    private static ArrayList<String> parseLogStream(List<String> logFile, Map<String, Pattern> regularExpressions) {
+        ArrayList<String> errors = new ArrayList<>();
+        AtomicInteger count = new AtomicInteger();
+        AtomicInteger last = new AtomicInteger();
+        int size = logFile.size();
+        final Matcher[] matcher = new Matcher[1];
+        // TODO: Increase speed. Look at using parrallel worker threads.
+        logFile.parallelStream()
+                .forEach(s ->{
+                    regularExpressions.keySet().parallelStream()
+                            .forEach(p ->{
+                                matcher[0] = regularExpressions.get(p).matcher(s);
+                                if(matcher[0].find()) {
+                                    if(!errors.contains(p))
+                                        errors.add(p.toString());
+                                }
+                            });
+                    count.getAndIncrement();
+                    last.set(printPercentage(count.get(), last.get(), size));
+                });
         return errors;
     }
 
