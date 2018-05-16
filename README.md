@@ -36,6 +36,8 @@ This tool supports custom definitions, by providing a URL as the definition argu
 
 `-def=https://www.example.com/definition.xml`
 
+There is a sample definition file in the examples/ folder.
+
 ## Download
 You can download a pre-compiled binary from the [releases page](https://github.com/jackgraves/standalone-atlassian-log-scanner/releases)
 
