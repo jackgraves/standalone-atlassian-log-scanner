@@ -1,0 +1,6 @@
+<object-stream>
+    <RegexEntry>
+        <regex>PKIX path building failed</regex>
+        <URL>https://confluence.atlassian.com/kb/unable-to-connect-to-ssl-services-due-to-pkix-path-building-failed-779355358.html</URL>
+    </RegexEntry>
+</object-stream>

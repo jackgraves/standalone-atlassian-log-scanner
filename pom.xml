@@ -6,15 +6,15 @@
 
     <groupId>co.uk.jackgraves.logscanner</groupId>
     <artifactId>logscanner</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -26,7 +26,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>co.uk.jackgraves.logscanner.Main</mainClass>
+                            <mainClass>co.uk.jackgraves.logscanner.LogScanner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
