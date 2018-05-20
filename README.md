@@ -53,7 +53,8 @@ You can download a pre-compiled binary from the [releases page](https://github.c
 ## Improvements
 - [x] Use Parallel Streams API to speed up analysis
 - [x] Implement flags and arguments
-- [ ] Show line number/date against each detected problem
+- [x] Show Datetime for each detected problem
+- [ ] Show line number against each detected problem
 - [ ] Implement multiple definitions per analysis (by combining XML)
 - [ ] Implement Jira Service Desk App for use with support tickets
 - [ ] Port to Node.js for use with NPM
