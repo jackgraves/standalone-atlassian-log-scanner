@@ -16,45 +16,48 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.CRC32;
+import java.util.stream.Collectors;
 
 /**
- * Log Scanner for Atlassian Applications.  Supports:
- *  - Sequential and Parallel Modes
- *  - Atlassian or Custom Definition File
+ * Log Scanner for Atlassian Applications
  *
  * Arguments:
- *  -def (Definitions) - 1 of jira-core | jira-soft | jira-desk | confluence | crowd | bitbucket or a custom definition URL
- *  -log (Location of Log File) - e.g. atlassian-jira.log
- *  -stream (Run in Parrallel) - flag (set/unset)
+ *  -def (Definitions) - e.g. -def=jira-core | jira-soft | jira-desk | confluence | crowd | bitbucket | Custom Definition URL
+ *  -log (Location of Log File) - e.g. -log=atlassian-jira.log
+ *  -stream (Run in Parrallel) - e.g. -stream
+ *  -verbose (Show all instances of an error) - e.g. -verbose
  *
- * e.g. java -jar log-scanner.jar -def=jira-core -log=atlassian-jira.log -stream
- *
+ * Example:
+ *  java -jar log-scanner.jar -def=jira-core -log=atlassian-jira.log -stream
  */
 @SuppressWarnings("ALL")
 public class LogScanner {
-    private static final String[] PRODUCT_DEFINITIONS = {
-            "https://confluence.atlassian.com/support/files/179443532/792496554/2342/1525743696518/jira_regex_v2.xml",
-            "https://confluence.atlassian.com/support/files/179443532/792496607/2364/1525741337514/greenhopper_regex_v2.xml",
-            "https://confluence.atlassian.com/support/files/179443532/792630916/2322/1525746325041/servicedesk_regex_v2.xml",
-            "https://confluence.atlassian.com/support/files/179443532/792496589/2365/1525737479913/confluence_regex_v2.xml",
-            "https://confluence.atlassian.com/support/files/179443532/792630164/2408/1525735731825/bamboo_regex_v2.xml",
-            "https://confluence.atlassian.com/support/files/179443532/792303609/2314/1525744113860/stash_regex_v2.xml",
-            "https://confluence.atlassian.com/support/files/179443532/792630874/2361/1525737651612/crowd_regex_v2.xml"
-    };
+    private static final HashMap<String,String> PRODUCT_DEFINITIONS = new HashMap<String,String>() {{
+            put("jira-core", "https://confluence.atlassian.com/support/files/179443532/792496554/2342/1525743696518/jira_regex_v2.xml");
+            put("jira-soft", "https://confluence.atlassian.com/support/files/179443532/792496607/2364/1525741337514/greenhopper_regex_v2.xml");
+            put("jira-desk", "https://confluence.atlassian.com/support/files/179443532/792630916/2322/1525746325041/servicedesk_regex_v2.xml");
+            put("confluence", "https://confluence.atlassian.com/support/files/179443532/792496589/2365/1525737479913/confluence_regex_v2.xml");
+            put("bamboo", "https://confluence.atlassian.com/support/files/179443532/792630164/2408/1525735731825/bamboo_regex_v2.xml");
+            put("bitbucket", "https://confluence.atlassian.com/support/files/179443532/792303609/2314/1525744113860/stash_regex_v2.xml");
+            put("crowd", "https://confluence.atlassian.com/support/files/179443532/792630874/2361/1525737651612/crowd_regex_v2.xml");
+    }};
+
     private static final String RETURN = "\r\n";
     private static final String SPACING = "      ";
     private static final String COMPLETE = SPACING + "Complete" + RETURN;
+    private static final Pattern DATE_REGEX = Pattern.compile("(\\d{4}-\\d{2}-\\d{2}) (\\d{2}:\\d{2}:\\d{2})");
 
     public static void main(String[] args) {
         // Initialise Variables
         boolean stream = false;
+        boolean verbose = false;
         String logFile = null;
         String defInput = null;
 
         // Options
         Options opt = new Options(args, 2);
         opt.getSet().addOption("stream", Options.Multiplicity.ZERO_OR_ONE);
+        opt.getSet().addOption("verbose", Options.Multiplicity.ZERO_OR_ONE);
         opt.getSet().addOption("log", Options.Separator.EQUALS, Options.Multiplicity.ZERO_OR_ONE);
         opt.getSet().addOption("def", Options.Separator.EQUALS, Options.Multiplicity.ZERO_OR_ONE);
         opt.check();
@@ -77,17 +80,18 @@ public class LogScanner {
         if (opt.getSet().isSet("stream")) {
             stream = true;
         }
+        if (opt.getSet().isSet("verbose")) {
+            verbose = true;
+        }
 
         // Run Scanner
-        runScanner(defInput, logFile, stream);
+        runScanner(defInput, logFile, stream, verbose);
     }
 
-    private static void runScanner(String definition, String logFile, boolean stream) {
+    private static void runScanner(String definition, String logFile, boolean stream, boolean verbose) {
         // Introduction
         String mode = "Sequential";
-        if(stream) {
-            mode = "Parrallel";
-        }
+        if(stream) mode = "Parrallel";
         print("[ Standalone Atlassian Log Scanner - Started (" + mode + " Mode) ]" + RETURN + RETURN);
 
         // Download Definition
@@ -106,10 +110,14 @@ public class LogScanner {
 
         // Build RegEx List
         print("[3/5] Generating Regular Expressions..." + RETURN);
-        HashMap<String, Pattern> regularExpressions = new HashMap<>();
-        for (RegExItem regexItem : regexItems) {
-            regularExpressions.put(regexItem.URL, Pattern.compile(regexItem.regex));
-        }
+        HashMap<String, Pattern> regularExpressions = regexItems.stream().collect(
+                Collectors.toMap(
+                        regexItem -> regexItem.URL,
+                        regexItem -> Pattern.compile(regexItem.regex),
+                        (a, b) -> b,
+                        HashMap::new
+                )
+        );
         print(COMPLETE);
 
         // Read Log File
@@ -119,33 +127,20 @@ public class LogScanner {
 
         // Parse Logs
         print("[5/5] Parsing Log Lines..." + RETURN);
-        ArrayList<String> errors;
-        if(stream) {
-            errors = parseLogStream(log, regularExpressions);
-        } else {
-            errors = parseLog(log, regularExpressions);
-        }
+        ArrayList<Result> errors;
+        errors = stream ? parseLogStream(log, regularExpressions, verbose) : parseLog(log, regularExpressions, verbose);
         print("\r" + COMPLETE);
 
         // Print Errors
         print(RETURN + "Detected Problems:" + RETURN);
-        for(String url : errors) {
-            print("      " + url + RETURN);
+        for(Result err : errors) {
+            print(err.getDate() != null ? SPACING + err.getUrl() + " (" + err.getDate() + ")" + RETURN : SPACING + err.getUrl() + RETURN);
         }
-        print("\r\n[ Standalone Atlassian Log Scanner - Finished ]\r\n");
+        print(RETURN + "[ Standalone Atlassian Log Scanner - Finished ]" + RETURN);
     }
 
     private static String getDefinitionUrl(String product) {
-        switch(product) {
-            case "jira-core": return PRODUCT_DEFINITIONS[0];
-            case "jira-soft": return PRODUCT_DEFINITIONS[1];
-            case "jira-desk": return PRODUCT_DEFINITIONS[2];
-            case "confluence": return PRODUCT_DEFINITIONS[3];
-            case "bamboo": return PRODUCT_DEFINITIONS[4];
-            case "bitbucket": return PRODUCT_DEFINITIONS[5];
-            case "crowd": return PRODUCT_DEFINITIONS[6];
-            default: return PRODUCT_DEFINITIONS[0];
-        }
+        return PRODUCT_DEFINITIONS.getOrDefault(product,PRODUCT_DEFINITIONS.get("jira-core"));
     }
 
     private static void downloadDefinition(String defInput) {
@@ -162,9 +157,8 @@ public class LogScanner {
     private static ObjectStream unmarshallXml(String defInput) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(ObjectStream.class);
-            Unmarshaller jaxbUnmarshaller;
-            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            return (ObjectStream) jaxbUnmarshaller.unmarshal( new File(getFileName(defInput)) );
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            return (ObjectStream) jaxbUnmarshaller.unmarshal(new File(getFileName(defInput)));
         } catch (JAXBException e) {
             e.printStackTrace();
         }
@@ -184,18 +178,19 @@ public class LogScanner {
         return loglines;
     }
 
-    private static ArrayList<String> parseLog(List<String> logFile, Map<String, Pattern> regularExpressions) {
-        ArrayList<String> errors = new ArrayList<>();
+    private static ArrayList<Result> parseLog(List<String> logFile, Map<String, Pattern> regularExpressions, boolean verbose) {
+        ArrayList<Result> errors = new ArrayList<>();
         int count = 0;
         int last = 0;
         int size = logFile.size();
         Matcher matcher;
-        for (String s : logFile) {
-            for(String p : regularExpressions.keySet()) {
-                matcher = regularExpressions.get(p).matcher(s);
+        for (String line : logFile) {
+            for(String url : regularExpressions.keySet()) {
+                matcher = regularExpressions.get(url).matcher(line);
                 if(matcher.find()) {
-                    if(!errors.contains(p))
-                    errors.add(p);
+                    if(!errors.contains(url) || verbose) {
+                        errors.add(new Result(line, url));
+                    }
                 }
             }
             count++;
@@ -204,19 +199,24 @@ public class LogScanner {
         return errors;
     }
 
-    private static ArrayList<String> parseLogStream(List<String> logFile, Map<String, Pattern> regularExpressions) {
-        ArrayList<String> errors = new ArrayList<>();
+    private static ArrayList<Result> parseLogStream(List<String> logFile, Map<String, Pattern> regularExpressions, boolean verbose) {
+        ArrayList<Result> errors = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
         AtomicInteger last = new AtomicInteger();
         int size = logFile.size();
         final Matcher[] matcher = new Matcher[1];
         logFile.parallelStream()
-                .forEach(s ->{
-                    for(String p : regularExpressions.keySet()) {
-                        matcher[0] = regularExpressions.get(p).matcher(s);
+                .forEach(line ->{
+                    Matcher dateMatcher = DATE_REGEX.matcher(line);
+                    String date;
+                    date = dateMatcher.find() ? dateMatcher.group(1) + " " + dateMatcher.group(2) : null;
+                    for(String url : regularExpressions.keySet()) {
+                        matcher[0] = regularExpressions.get(url).matcher(line);
                         if(matcher[0].find()) {
-                            if(!errors.contains(p))
-                                errors.add(p.toString());
+                            Result result = new Result(url, line, date);
+                            if(!errors.contains(result) || verbose) {
+                                errors.add(result);
+                            }
                         }
                     }
                     count.getAndIncrement();
@@ -244,9 +244,7 @@ public class LogScanner {
 
     private static String getFileName(String defInput) {
         if(isUrl(defInput)) {
-            CRC32 crc = new CRC32();
-            crc.update(defInput.getBytes());
-            return String.valueOf(crc.getValue()) + ".xml";
+            return String.valueOf(defInput.hashCode()) + ".xml";
         } else {
             return defInput + ".xml";
         }
