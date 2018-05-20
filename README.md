@@ -27,7 +27,7 @@ Run the following command to build the project into a JAR file:
 `mvn package`
 
 ## Usage
-Execute the following on your command line (CMD or Bash) and leave the "stream" parameter out if you would like it to run sequentially (which is much less demanding).
+Execute the following on your command line (CMD or Bash) and leave the `-stream` parameter out if you would like it to run sequentially (which is much less demanding). To see all problems, use the `-verbose` flag
 
 `java -jar log-scanner.jar -def=jira-core -log=atlassian-jira.log -stream`
 
