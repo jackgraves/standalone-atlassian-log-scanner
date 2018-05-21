@@ -1,9 +1,18 @@
 # Standalone Atlassian Log Scanner/Analyser
-[![Build Status](https://travis-ci.org/jackgraves/standalone-atlassian-log-scanner.svg?branch=master)](https://travis-ci.org/jackgraves/standalone-atlassian-log-scanner)
+ > Sick of the time it takes to scan your Atlassian log files using the Log Analyser? _Enter SALSA!_
+ 
+[![Build Status](https://travis-ci.org/jackgraves/standalone-atlassian-log-scanner.svg?branch=master)](https://travis-ci.org/jackgraves/standalone-atlassian-log-scanner) [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://community.atlassian.com/t5/Jira-discussions/An-Open-Source-Standalone-Log-Analyser-for-Atlassian-Products/td-p/794406) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 
-Sick of the time it takes to scan your Atlassian log files using the Log Analyser? Enter SALSA!
-This is a standalone version of the Log Scanner (Hercules) that is built into Jira, Confluence, Bitbucket, Bamboo, Crowd and Fisheye/Crucible. 
-The aim is to increase the speed of scanning dramatically compared to executing through the interface and allow automated scanning of log files in a support system.
+This is a standalone version of the Log Scanner (Hercules) that is built into Jira, Confluence, Bitbucket, Bamboo, Crowd and Fisheye/Crucible.
+
+The aim of this project is to increase the speed of scanning compared to executing through the interface of the Atlassian applications.
+
+It also extends the provided tool with the following improvements:
+* Allows third-party developers to provide definition files that can be used in addition to the Atlassian-supplied definitions
+* Can be integrated with a support system to perform automated scanning on submission of log files
+* Run the analysis on a different box than the Jira/Confluence system that is experiencing a problem
+* Code can also be used for scanning any text files for Regular Expressions from XML.
+* Run in Sequence or in Parrallel and display verbose information
 
 ## Performance
 A 3MB Log File took the following duration:
@@ -19,8 +28,8 @@ The following steps are followed:
 2. Parses the XML into JAXB Objects
 3. Generates Regular Expression List
 4. Reads the Log File
-5. Runs Regular Expressions on each Log Line (either sequentially or in parrallel)
-6. Prints out the URL of all errors that have been found in the system (distinct)
+5. Runs Regular Expressions on each Log Line (either sequentially or in parallel)
+6. Prints out the URL of all errors that have been found in the system (distinct, or all using verbose mode)
 
 ## Compiling
 Run the following command to build the project into a JAR file:
