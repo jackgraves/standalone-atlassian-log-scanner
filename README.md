@@ -1,5 +1,6 @@
 # Standalone Atlassian Log Scanner/Analyser
 [![Build Status](https://travis-ci.org/jackgraves/standalone-atlassian-log-scanner.svg?branch=master)](https://travis-ci.org/jackgraves/standalone-atlassian-log-scanner)
+
 Sick of the time it takes to scan your Atlassian log files using the Log Analyser? Enter SALSA!
 This is a standalone version of the Log Scanner (Hercules) that is built into Jira, Confluence, Bitbucket, Bamboo, Crowd and Fisheye/Crucible. 
 The aim is to increase the speed of scanning dramatically compared to executing through the interface and allow automated scanning of log files in a support system.
