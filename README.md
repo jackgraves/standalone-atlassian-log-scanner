@@ -51,6 +51,9 @@ There is a sample definition file in the examples/ folder.
 ## Download
 You can download a pre-compiled binary from the [releases page](https://github.com/jackgraves/standalone-atlassian-log-scanner/releases)
 
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjackgraves%2Fstandalone-atlassian-log-scanner.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjackgraves%2Fstandalone-atlassian-log-scanner?ref=badge_large)
+
 ## Example
 ### Built-in Tool
 
